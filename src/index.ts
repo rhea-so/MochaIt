@@ -1,6 +1,19 @@
-require('app-module-path').addPath(__dirname);
-require('source-map-support').install();
+export default function mochaIt(func: (done: Function) => Promise<void>, timeout?: number) {
+	return function (finish: Function) {
+		if (this) {
+			if (timeout) {
+				this.timeout(timeout);
+			} else {
+				this.timeout(1000);
+			}
+		}
 
-import { Debug, LogTag } from '00_Utils/debugger';
+		async function task() {
+			await func(finish);
+		}
 
-Debug.log(LogTag.NOWAY, 'Hello, World!');
+		task().catch(err => {
+			finish(err);
+		});
+	}
+}
